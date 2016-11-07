@@ -25,10 +25,10 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 	def __init__(self):
 		super(KeithleyMainWindow, self).__init__()
 		self.InstrContr = InstrumentControlThread() #InstrumentControlThread class
-    #with custom signal dataOutput, new API
+    		#with custom signal dataOutput, new API
 		self.InstrContr.dataOutput.connect(self.plotUpdate) #slot in MainWindow self.plotUpdate()
 		self.InstrContr.finished.connect(self.OnReset_ButtonClicked) #slot for finished signal
-    #data array for voltage and current
+    		#data array for voltage and current
 		self.dataArray_V=[]
 		self.dataArray_I=[]
 		
@@ -185,7 +185,7 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 		self.mplCanvas.axes.plot(X,Y) #plot two sine curves with trace and retrace
 		#self.mplCanvas.draw()
 
-    #grid.addWidget
+    		#grid.addWidget
 		#row 0
 		KMWgrid.addWidget(KeithleyLabel, 0, 0, 1, 4)
 		KMWgrid.addWidget(PlotLabel, 0, 4, 1, 30)
@@ -239,7 +239,7 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 
 #################################################################################################################################
 	#Help menu --> about
-  def about (self):
+  	def about (self):
 		QtGui.QMessageBox.about(self, "About Keithley_IV", """Multi-Thread pyqt4 virtual Instrument""")
 	
   #"IDN" button pressed
@@ -265,14 +265,14 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 		self.statusBar().showMessage('Set the parameters.')
 		self.BrowseButton.setEnabled(True)
 
-  #sellect folder to save the output data
+  	#sellect folder to save the output data
 	def OnBrowse_ButtonClicked (self):
 		directory = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
 		self.Directory_Label.setText(directory+'/')
 		self.SetButton.setEnabled(True)
 		self.statusBar().showMessage('Directory selected.')
 
-  #set parameters to be used in Keithley 2400
+  	#set parameters to be used in Keithley 2400
 	def OnSet_ButtonClicked (self):
 		#Data output file opening, check the file name string
 		if str(self.File_NameEdit.text())[:1] == ' ' or str(self.File_NameEdit.text())[-1:] == ' ' or str(self.File_NameEdit.text()) == '':
@@ -281,7 +281,7 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 			return
 		fileName=self.Directory_Label.text()+self.File_NameEdit.text()
 		
-    #file operation: time stamp for file open
+    		#file operation: time stamp for file open
 		self.dataOutputFile=open(fileName,'a')	
 		timeFileOpened=str(datetime.datetime.now()) 
 		#self.dataOutputFile.write('File opened at\n')
@@ -309,7 +309,7 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 		self.statusBar().showMessage('All set.')
 		return
 	
-  #reset parameters
+  	#reset parameters
 	def OnReset_ButtonClicked (self):
 		self.KeithleyAddrEdit1.setEnabled(True)
 		self.KeithleyAddrEdit2.setEnabled(True)
@@ -332,13 +332,13 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 		self.statusBar().showMessage('Reset all.')
 		self.VOLT_STARTEdit.selectAll()
 		self.VOLT_STARTEdit.setFocus()
-    #make data array empty
+    		#make data array empty
 		self.dataArray_V=[]
 		self.dataArray_I=[]
 		self.dataOutputFile.write(str(datetime.datetime.now())+'\n')
 		return
 
-  #set steps in IV sweep
+  	#set steps in IV sweep
 	def setSteps (self):
 
 		try:
@@ -380,7 +380,7 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 		#self.statusBar().showMessage('DiffInSteps:'+str(floatDiffInSteps)+str(intDiffInSteps))
 		return
 
-  #start measurement, initialize Keithley
+  	#start measurement, initialize Keithley
 	def OnStart_ButtonClicked (self):
 		self.ResetButton.setEnabled(False)
 		self.StartButton.setEnabled(False)
@@ -411,13 +411,13 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 
 	def plotUpdate(self, VI_string, floatV, floatI):
 		#data file update
-    self.dataOutputFile.write(VI_string)
+    		self.dataOutputFile.write(VI_string)
 		
-    self.dataArray_V.append(floatV)
+    		self.dataArray_V.append(floatV)
 		self.dataArray_I.append(floatI)
 		self.mplCanvas.axes.hold(False)
 		
-    #plot update
+    		#plot update
 		self.mplCanvas.axes.plot(self.dataArray_V,self.dataArray_I)
 		self.mplCanvas.draw()
 		return
@@ -434,7 +434,7 @@ class InstrumentControlThread(QtCore.QThread):
 	def __init__(self):
 		super(InstrumentControlThread, self).__init__()
 		#defaut parameters
-    self.exiting =  False
+    		self.exiting =  False
 		self.voltStartStr="0"
 		self.voltEndStr="0"
 		self.voltStepStr="0.1"
