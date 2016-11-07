@@ -237,16 +237,16 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 		
 		self.show()
 
-#################################################################################################################################
+############################################################
 	#Help menu --> about
   	def about (self):
 		QtGui.QMessageBox.about(self, "About Keithley_IV", """Multi-Thread pyqt4 virtual Instrument""")
 	
-  #"IDN" button pressed
+  	#"IDN" button pressed
 	def OnIDN_ButtonPressed (self):
 		self.Keithley_idnLabel.setText('Connecting to GPIB address   '+self.KeithleyAddrEdit2.text()+'   ......')
 
-  #"IDN" button released, get VISA address string
+  	#"IDN" button released, get VISA address string
 	def OnIDN_ButtonReleased (self):
 		K_Addr_text = self.KeithleyAddrEdit2.text()
 		try:
