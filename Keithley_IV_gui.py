@@ -244,7 +244,7 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 	
   	#"IDN" button pressed
 	def OnIDN_ButtonPressed (self):
-		self.Keithley_idnLabel.setText('Connecting to GPIB address   '+self.KeithleyAddrEdit2.text()+'   ......')
+		self.Keithley_idnLabel.setText('Connecting to GPIB address   '+self.KeithleyAddrEdit1.text()+'::'+self.KeithleyAddrEdit2.text()+'::'+self.KeithleyAddrEdit3.text()+'   ......')
 
   	#"IDN" button released, get VISA address string
 	def OnIDN_ButtonReleased (self):
@@ -258,7 +258,7 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 			self.KeithleyAddrEdit2.setFocus()
 			return
 
-		s_Keithley_GPIB_Address = self.KeithleyAddrEdit1.text()+'::'+K_Addr_text+'::'+self.KeithleyAddrEdit3.text()
+		s_Keithley_GPIB_Address = str(self.KeithleyAddrEdit1.text()+'::'+K_Addr_text+'::'+self.KeithleyAddrEdit3.text())
 		self.virtualKeithley = virtualINSTR(s_Keithley_GPIB_Address) #virtual_visa or visa connection
 		self.Keithley_idnLabel.setText(self.virtualKeithley.IDN_Query().rstrip('\n'))
 		self.instrument_checkLabel.setText('Please check the IDN(s) displayed above.')
@@ -285,7 +285,7 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 		self.dataOutputFile=open(fileName,'a')	
 		timeFileOpened=str(datetime.datetime.now()) 
 		#self.dataOutputFile.write('File opened at\n')
-		self.dataOutputFile.write(timeFileOpened+'File opened.\n')
+		self.dataOutputFile.write(timeFileOpened+'  Parameters Set.\n')
 
 		self.setSteps()
 		self.KeithleyAddrEdit1.setEnabled(False)
@@ -335,7 +335,7 @@ class KeithleyMainWindow(QtGui.QMainWindow):
     		#make data array empty
 		self.dataArray_V=[]
 		self.dataArray_I=[]
-		self.dataOutputFile.write(str(datetime.datetime.now())+'\n')
+		self.dataOutputFile.write(str(datetime.datetime.now())+'  Reset parameters.\n')
 		return
 
   	#set steps in IV sweep
@@ -388,22 +388,22 @@ class KeithleyMainWindow(QtGui.QMainWindow):
 		self.virtualKeithley.reset()#Initialize Keithley
 		self.virtualKeithley.setConcurrentOn()
 		self.virtualKeithley.setSenseVoltCurr()
-		self.virtualKeithley.setSenseVoltCompliance(self.VOLT_ComplianceEdit.text())
-		self.virtualKeithley.setSenseCurrCompliance(self.CURR_ComplianceEdit.text())
-		self.virtualKeithley.setSourceVoltRange(self.VOLT_RangeEdit.text())
-		self.virtualKeithley.setSenseCurrRange(self.CURR_RangeEdit.text())
-		self.virtualKeithley.setSourceVoltCompliance(self.VOLT_ComplianceEdit.text())
+		self.virtualKeithley.setSenseVoltCompliance(str(self.VOLT_ComplianceEdit.text()))
+		self.virtualKeithley.setSenseCurrCompliance(str(self.CURR_ComplianceEdit.text()))
+		self.virtualKeithley.setSourceVoltRange(str(self.VOLT_RangeEdit.text()))
+		self.virtualKeithley.setSenseCurrRange(str(self.CURR_RangeEdit.text()))
+		self.virtualKeithley.setSourceVoltCompliance(str(self.VOLT_ComplianceEdit.text()))
 		self.virtualKeithley.setSourceAutoOFF()
 		self.virtualKeithley.setSourceVoltModeFixed()
-		self.virtualKeithley.setSourceDelay(self.SOUR_DelayEdit.text())
-		self.virtualKeithley.setNPLC(self.NPLC_Edit.text())
+		self.virtualKeithley.setSourceDelay(str(self.SOUR_DelayEdit.text()))
+		self.virtualKeithley.setNPLC(str(self.NPLC_Edit.text()))
 		self.virtualKeithley.setFormatElementsVOLT_CURR()
 		self.virtualKeithley.setSourceVoltLevel('0')
 		self.virtualKeithley.setOutputON()
-		self.statusBar().showMessage('Output On. Ramping ...')
+		self.statusBar().showMessage('Output On.')
 
 		#file operation: time stamp for measurment start
-		self.dataOutputFile.write(str(datetime.datetime.now())+'Measurement stared ...\n')
+		self.dataOutputFile.write(str(datetime.datetime.now())+'  Measurement started ...\n')
 		#hand over instrument control to thread
 		self.InstrContr.render(self.VOLT_STARTEdit.text(), self.VOLT_ENDEdit.text(), self.VOLT_STEPEdit.text(), self.virtualKeithley, self.intNumberSteps, self.SOUR_DelayEdit.text())
 		
@@ -461,10 +461,11 @@ class InstrumentControlThread(QtCore.QThread):
 		n=0
 		while not self.exiting and n<(self.IntNumSteps/2):
 			self.vK.setSourceVoltLevel(str(SourLev))
+			self.vK.setINIT()
 			time.sleep(self.sourDelayFloat)
 			self.vK.askSenseDataLatest()
 			DataString=self.vK.read()
-			Vstring_Istring=DataString.split(', ')
+			Vstring_Istring=DataString.split(',')
 			Vfloat=float(Vstring_Istring[0])
 			Ifloat=float(Vstring_Istring[1])
 			self.dataOutput.emit(DataString, Vfloat, Ifloat) #emit signal to MainWindow
@@ -475,16 +476,18 @@ class InstrumentControlThread(QtCore.QThread):
 		n=0
 		while not self.exiting and n<(self.IntNumSteps/2):
 			self.vK.setSourceVoltLevel(str(SourLev))
+			self.vK.setINIT()
 			time.sleep(self.sourDelayFloat)
 			self.vK.askSenseDataLatest()
 			DataString=self.vK.read()
-			Vstring_Istring=DataString.split(', ')
+			Vstring_Istring=DataString.split(',')
 			Vfloat=float(Vstring_Istring[0])
 			Ifloat=float(Vstring_Istring[1])
 			self.dataOutput.emit(DataString, Vfloat, Ifloat) #emit signal to MainWindow
 			SourLev-=self.voltStepFloat
 			n+=1
 		self.vK.Ramp(self.voltStartFloat, 0, 100, 0.1) #ramp voltage from V_start to 0 in 100 steps
+		self.vK.setSourceVoltLevel('0')
 		return
 		
 
