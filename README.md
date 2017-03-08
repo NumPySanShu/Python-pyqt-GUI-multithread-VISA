@@ -13,6 +13,6 @@
       
       virtualINSTR.py -- Interface to Keithley
       
-      virtualINSTR -- a mock VISA for test.
+      virtual_visa.py -- a mock VISA for test.
   
   Besides the modules listed in "Keithley_IV_gui.py", NI-VISA is recommended. The program has been tested with python2.7 under Linux.
